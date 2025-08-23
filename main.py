@@ -242,7 +242,7 @@ class ARIAAssistant:
         
         if app_to_launch and self.system_controller:
             try:
-                success = self.system_controller.launch_application(app_to_launch)
+                success = self.system_controller.open_application(app_to_launch)
                 if success:
                     return f"✅ J'ai ouvert {app_to_launch} pour vous."
                 else:
