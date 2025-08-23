@@ -108,6 +108,10 @@ class ARIAAssistant:
             # Initialiser l'interface utilisateur
             if ARIAMainWindow:
                 self.ui_window = ARIAMainWindow()
+                # Connecter les callbacks
+                self.ui_window.set_callback('on_command', self.process_command)
+                self.ui_window.set_callback('on_start_listening', self.start_listening)
+                self.ui_window.set_callback('on_stop_listening', self.stop_listening)
                 self.ui_window.add_response("text", "Bonjour ! Je suis ARIA, votre assistant IA. Comment puis-je vous aider ?")
             
             self.logger.info("✅ Composants disponibles initialisés avec succès")
@@ -167,8 +171,123 @@ class ARIAAssistant:
                 print(f"\nARIA > Désolé, une erreur s'est produite : {e}")
                 self.logger.error(f"Erreur console: {e}")
     
+    def process_command(self, command: str):
+        """Traite une commande utilisateur"""
+        self.logger.info(f"Traitement de la commande: {command}")
+        
+        try:
+            # Ajouter à l'historique
+            self.conversation_context["history"].append({
+                "timestamp": datetime.now().isoformat(),
+                "type": "user_command",
+                "content": command
+            })
+            
+            # Traitement de base des commandes
+            command_lower = command.lower().strip()
+            response = None
+            
+            # Commandes d'ouverture d'applications
+            if any(word in command_lower for word in ["ouvre", "lance", "démarre", "ouvrir", "lancer"]):
+                response = self._handle_app_launch_command(command_lower)
+            
+            # Commandes système
+            elif any(word in command_lower for word in ["ferme", "arrête", "éteint", "redémarre"]):
+                response = self._handle_system_command(command_lower)
+            
+            # Commandes d'information
+            elif any(word in command_lower for word in ["quelle heure", "quel jour", "date", "temps"]):
+                response = self._handle_info_command(command_lower)
+            
+            # Commandes générales
+            else:
+                response = f"Je comprends votre demande '{command}'. Cette fonctionnalité sera bientôt disponible."
+            
+            # Envoyer la réponse à l'interface
+            if self.ui_window and response:
+                self.ui_window.add_response("text", response)
+                
+                # Synthèse vocale si disponible
+                if self.response_engine:
+                    try:
+                        self.response_engine.speak(response)
+                    except Exception as e:
+                        self.logger.error(f"Erreur synthèse vocale: {e}")
+            
+        except Exception as e:
+            self.logger.error(f"Erreur traitement commande: {e}")
+            if self.ui_window:
+                self.ui_window.add_response("error", f"Erreur lors du traitement: {e}")
     
+    def _handle_app_launch_command(self, command: str) -> str:
+        """Gère les commandes d'ouverture d'applications"""
+        # Applications courantes avec leurs noms possibles
+        app_mapping = {
+            "visual studio code": ["visual studio code", "vscode", "vs code", "code"],
+            "notepad": ["bloc-notes", "notepad", "bloc notes"],
+            "calculator": ["calculatrice", "calculator", "calc"],
+            "chrome": ["chrome", "google chrome", "navigateur"],
+            "firefox": ["firefox", "mozilla"],
+            "explorer": ["explorateur", "explorer", "dossier", "fichiers"],
+            "cmd": ["invite de commande", "cmd", "command prompt", "terminal"],
+            "powershell": ["powershell", "power shell"]
+        }
+        
+        # Chercher l'application demandée
+        app_to_launch = None
+        for app_name, keywords in app_mapping.items():
+            if any(keyword in command for keyword in keywords):
+                app_to_launch = app_name
+                break
+        
+        if app_to_launch and self.system_controller:
+            try:
+                success = self.system_controller.launch_application(app_to_launch)
+                if success:
+                    return f"✅ J'ai ouvert {app_to_launch} pour vous."
+                else:
+                    return f"❌ Je n'ai pas pu ouvrir {app_to_launch}. L'application n'est peut-être pas installée."
+            except Exception as e:
+                return f"❌ Erreur lors de l'ouverture de {app_to_launch}: {e}"
+        else:
+            return f"Je comprends que vous voulez ouvrir une application, mais je n'ai pas reconnu laquelle. Pouvez-vous être plus spécifique ?"
     
+    def _handle_system_command(self, command: str) -> str:
+        """Gère les commandes système"""
+        if "ferme" in command or "arrête" in command:
+            return "Commandes de fermeture détectées. Cette fonctionnalité sera bientôt disponible."
+        elif "éteint" in command or "shutdown" in command:
+            return "Commande d'extinction détectée. Cette fonctionnalité sera bientôt disponible."
+        elif "redémarre" in command or "restart" in command:
+            return "Commande de redémarrage détectée. Cette fonctionnalité sera bientôt disponible."
+        else:
+            return "Commande système non reconnue."
+    
+    def _handle_info_command(self, command: str) -> str:
+        """Gère les commandes d'information"""
+        now = datetime.now()
+        
+        if "heure" in command:
+            return f"Il est actuellement {now.strftime('%H:%M:%S')}."
+        elif "date" in command or "jour" in command:
+            return f"Nous sommes le {now.strftime('%d/%m/%Y')} ({now.strftime('%A')})."
+        else:
+            return f"Nous sommes le {now.strftime('%d/%m/%Y')} et il est {now.strftime('%H:%M:%S')}."
+    
+    def start_listening(self):
+        """Démarre l'écoute vocale"""
+        self.listening = True
+        self.logger.info("🎤 Écoute vocale démarrée")
+        # TODO: Implémenter la reconnaissance vocale
+        if self.ui_window:
+            self.ui_window.add_response("status", "Écoute vocale activée (fonctionnalité en développement)")
+    
+    def stop_listening(self):
+        """Arrête l'écoute vocale"""
+        self.listening = False
+        self.logger.info("🎤 Écoute vocale arrêtée")
+        if self.ui_window:
+            self.ui_window.add_response("status", "Écoute vocale désactivée")
     
     def shutdown(self):
         """Arrêter l'assistant proprement"""
