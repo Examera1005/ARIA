@@ -37,11 +37,6 @@ class ARIAMainWindow:
         self.command_queue = queue.Queue()
         self.response_queue = queue.Queue()
         
-        # Variables d'état
-        self.is_listening = tk.BooleanVar(value=False)
-        self.is_processing = tk.BooleanVar(value=False)
-        self.current_status = tk.StringVar(value="Prêt")
-        
         # Historique des conversations
         self.conversation_history = []
         
@@ -52,7 +47,14 @@ class ARIAMainWindow:
             'on_stop_listening': None
         }
         
+        # Initialisation de la fenêtre AVANT les variables Tkinter
         self._setup_window()
+        
+        # Variables d'état (après création de la fenêtre racine)
+        self.is_listening = tk.BooleanVar(value=False)
+        self.is_processing = tk.BooleanVar(value=False)
+        self.current_status = tk.StringVar(value="Prêt")
+        
         self._create_widgets()
         self._setup_bindings()
         
