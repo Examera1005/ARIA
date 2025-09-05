@@ -1,0 +1,36 @@
+2025-09-05 12:37:36,879 - ARIA - INFO - 🤖 ARIA Assistant initialisé
+2025-09-05 12:37:36,880 - ARIA - INFO - 🚀 Initialisation des composants ARIA avancés...
+2025-09-05 12:37:36,880 - automation.system_controller - INFO - Découverte des applications installées...
+2025-09-05 12:37:37,324 - automation.system_controller - INFO - Découvert 181 applications
+2025-09-05 12:37:37,324 - ARIA - INFO - ✅ Contrôleur système initialisé
+2025-09-05 12:37:37,411 - comtypes.client._code_cache - INFO - Imported existing <module 'comtypes.gen' from 'C:\\Users\\theli\\AppData\\Roaming\\Python\\Python310\\site-packages\\comtypes\\gen\\__init__.py'>
+2025-09-05 12:37:37,412 - comtypes.client._code_cache - INFO - Using writeable comtypes cache directory: 'C:\Users\theli\AppData\Roaming\Python\Python310\site-packages\comtypes\gen'
+2025-09-05 12:37:37,505 - comtypes.client._generate - INFO - Could not import comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4: Typelib different than module
+2025-09-05 12:37:37,509 - comtypes.client._generate - INFO - # Generating comtypes.gen._C866CA3A_32F7_11D2_9602_00C04F8EE628_0_5_4
+2025-09-05 12:37:37,613 - comtypes.client._generate - INFO - # Generating comtypes.gen.SpeechLib
+2025-09-05 12:37:38,408 - core.response_engine - INFO - Voix sélectionnée : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_FR-FR_HORTENSE_11.0
+2025-09-05 12:37:38,408 - core.response_engine - INFO - Moteur pyttsx3 initialisé
+2025-09-05 12:37:38,412 - core.response_engine - INFO - Thread de synthèse vocale démarré
+2025-09-05 12:37:38,412 - ARIA - INFO - ✅ Moteur de réponse initialisé
+2025-09-05 12:37:39,044 - ARIA - INFO - ✅ Interface utilisateur initialisée
+2025-09-05 12:37:39,044 - ARIA - INFO - 🎯 Tous les composants disponibles ont été initialisés avec succès
+2025-09-05 12:37:39,044 - ARIA - INFO - 🎯 Démarrage d'ARIA...
+2025-09-05 12:37:39,044 - ui.main_window - INFO - Démarrage de l'interface ARIA
+2025-09-05 12:38:06,159 - ARIA - INFO - 🎯 Traitement de la commande: ouvre firefox et cherche video de moto sur youtube et choisi la deuxieme
+2025-09-05 12:38:06,188 - automation.system_controller - INFO - Application firefox ouverte : C:\Program Files\Mozilla Firefox\firefox.exe
+2025-09-05 12:38:08,195 - ARIA - INFO - ✅ Commande traitée avec succès
+2025-09-05 12:38:24,473 - ARIA - INFO - 🎯 Traitement de la commande: Vous: ouvre firefox et cherche video de moto sur youtube et choisi la deuxieme
+2025-09-05 12:38:24,486 - automation.system_controller - INFO - Application firefox ouverte : C:\Program Files\Mozilla Firefox\firefox.exe
+2025-09-05 12:38:26,505 - ARIA - INFO - ✅ Commande traitée avec succès
+2025-09-05 12:38:46,263 - ARIA - INFO - 🎯 Traitement de la commande: va sur youtube
+2025-09-05 12:38:46,263 - ARIA - INFO - ✅ Commande traitée avec succès
+2025-09-05 12:38:58,988 - ARIA - INFO - 🎯 Traitement de la commande: ouvre youtube
+2025-09-05 12:38:58,988 - ARIA - INFO - ✅ Commande traitée avec succès
+2025-09-05 12:39:15,222 - ARIA - INFO - 🎯 Traitement de la commande: cheche video de chat
+2025-09-05 12:39:15,226 - ARIA - INFO - ✅ Commande traitée avec succès
+2025-09-05 12:39:18,739 - ARIA - INFO - 🎯 Traitement de la commande: lol
+2025-09-05 12:39:18,743 - ARIA - INFO - ✅ Commande traitée avec succès
+2025-09-05 12:39:38,826 - ui.main_window - INFO - Interruption clavier
+2025-09-05 12:39:38,827 - ARIA - INFO - 🛑 Arrêt d'ARIA...
+2025-09-05 12:39:38,872 - core.response_engine - INFO - Arrêt du moteur de réponse vocale
+2025-09-05 12:39:38,873 - ARIA - INFO - ✅ ARIA arrêté proprement

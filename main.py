@@ -48,6 +48,18 @@ except ImportError:
     ARIAMainWindow = None
 
 try:
+    from automation.task_executor import AITaskExecutor
+    from automation.web_automation import WebAutomation
+    from automation.system_controller import SystemController
+    from automation.window_manager import WindowManager
+except ImportError as e:
+    print(f"Certains modules d'automation non disponibles: {e}")
+    AITaskExecutor = None
+    WebAutomation = None
+    SystemController = None
+    WindowManager = None
+
+try:
     from core.response_engine import ResponseEngine
 except ImportError:
     ResponseEngine = None
@@ -58,10 +70,10 @@ except ImportError:
     SystemController = None
 
 class ARIAAssistant:
-    """Assistant IA Principal"""
+    """Assistant IA Principal - Version Avancée"""
     
     def __init__(self):
-        """Initialiser ARIA"""
+        """Initialiser ARIA avec toutes les capacités"""
         self.logger = logging.getLogger("ARIA")
         self.running = False
         self.listening = False
@@ -74,16 +86,32 @@ class ARIAAssistant:
         self.speech_engine = None
         self.system_controller = None
         self.response_engine = None
+        self.task_executor = None
+        self.web_automation = None
+        self.window_manager = None
         
         # Interface utilisateur
         self.ui_window = None
+        
+        # Configuration avancée
+        self.config = {
+            'voice_enabled': True,
+            'language': 'fr',
+            'browser_preference': 'chrome',
+            'headless_browser': False,
+            'task_execution_enabled': True,
+            'web_automation_enabled': True,
+            'email_enabled': True
+        }
         
         # Contexte de conversation
         self.conversation_context = {
             "history": [],
             "current_task": None,
             "user_preferences": {},
-            "active_sessions": {}
+            "active_sessions": {},
+            "last_web_search": None,
+            "last_application_opened": None
         }
         
         # Créer les dossiers nécessaires s'ils n'existent pas
@@ -94,27 +122,46 @@ class ARIAAssistant:
         self.logger.info("🤖 ARIA Assistant initialisé")
     
     def initialize(self):
-        """Initialiser tous les composants"""
-        self.logger.info("🚀 Initialisation des composants ARIA...")
+        """Initialiser tous les composants avancés"""
+        self.logger.info("🚀 Initialisation des composants ARIA avancés...")
         
         try:
-            # Initialiser les composants disponibles
+            # Initialiser le contrôleur système
             if SystemController:
-                self.system_controller = SystemController()
+                self.system_controller = SystemController(self.config)
+                self.logger.info("✅ Contrôleur système initialisé")
             
+            # Initialiser le gestionnaire de fenêtres
+            if WindowManager:
+                self.window_manager = WindowManager(self.config)
+                self.logger.info("✅ Gestionnaire de fenêtres initialisé")
+            
+            # Initialiser l'exécuteur de tâches IA
+            if AITaskExecutor:
+                self.task_executor = AITaskExecutor(self.config)
+                self.logger.info("✅ Exécuteur de tâches IA initialisé")
+            
+            # Initialiser l'automation web
+            if WebAutomation:
+                self.web_automation = WebAutomation(self.config)
+                self.logger.info("✅ Module d'automation web initialisé")
+            
+            # Initialiser le moteur de réponse
             if ResponseEngine:
                 self.response_engine = ResponseEngine()
+                self.logger.info("✅ Moteur de réponse initialisé")
             
             # Initialiser l'interface utilisateur
             if ARIAMainWindow:
                 self.ui_window = ARIAMainWindow()
-                # Connecter les callbacks
-                self.ui_window.set_callback('on_command', self.process_command)
+                # Connecter les callbacks  
+                self.ui_window.set_callback('on_command', self._sync_process_command)
                 self.ui_window.set_callback('on_start_listening', self.start_listening)
                 self.ui_window.set_callback('on_stop_listening', self.stop_listening)
-                self.ui_window.add_response("text", "Bonjour ! Je suis ARIA, votre assistant IA. Comment puis-je vous aider ?")
+                self.ui_window.add_response("text", "🤖 Bonjour ! Je suis ARIA, votre assistant IA avancé.\n\nJe peux :\n• Ouvrir et contrôler des applications\n• Naviguer sur le web et rechercher des informations\n• Gérer vos emails et calendrier\n• Contrôler votre système (souris, clavier)\n• Automatiser des tâches complexes\n\nQue puis-je faire pour vous ?")
+                self.logger.info("✅ Interface utilisateur initialisée")
             
-            self.logger.info("✅ Composants disponibles initialisés avec succès")
+            self.logger.info("🎯 Tous les composants disponibles ont été initialisés avec succès")
             
         except Exception as e:
             self.logger.error(f"❌ Erreur lors de l'initialisation: {e}")
@@ -171,9 +218,9 @@ class ARIAAssistant:
                 print(f"\nARIA > Désolé, une erreur s'est produite : {e}")
                 self.logger.error(f"Erreur console: {e}")
     
-    def process_command(self, command: str):
-        """Traite une commande utilisateur"""
-        self.logger.info(f"Traitement de la commande: {command}")
+    async def process_command(self, command: str):
+        """Traite une commande utilisateur avec l'IA avancée"""
+        self.logger.info(f"🎯 Traitement de la commande: {command}")
         
         try:
             # Ajouter à l'historique
@@ -183,41 +230,111 @@ class ARIAAssistant:
                 "content": command
             })
             
-            # Traitement de base des commandes
-            command_lower = command.lower().strip()
             response = None
             
-            # Commandes d'ouverture d'applications
-            if any(word in command_lower for word in ["ouvre", "lance", "démarre", "ouvrir", "lancer"]):
-                response = self._handle_app_launch_command(command_lower)
+            # Utiliser l'exécuteur de tâches IA si disponible
+            if self.task_executor and self.config.get('task_execution_enabled', True):
+                try:
+                    self.logger.info("🤖 Utilisation de l'exécuteur de tâches IA")
+                    
+                    # Exécuter la tâche avec l'IA
+                    task_result = await self.task_executor.execute_task(
+                        command, 
+                        context=self.conversation_context
+                    )
+                    
+                    if task_result.success:
+                        response = f"✅ {task_result.message}"
+                        
+                        # Ajouter des informations supplémentaires si disponibles
+                        if task_result.data:
+                            if isinstance(task_result.data, dict):
+                                if "url" in task_result.data:
+                                    response += f"\n🔗 URL: {task_result.data['url']}"
+                                if "emails" in task_result.data:
+                                    emails = task_result.data["emails"]
+                                    response += f"\n📧 {len(emails)} email(s) trouvé(s)"
+                                    for email in emails[:3]:  # Limite à 3 emails
+                                        response += f"\n  • De: {email.get('from', 'Inconnu')}"
+                                        response += f"\n    Sujet: {email.get('subject', 'Sans sujet')}"
+                                        if email.get('snippet'):
+                                            response += f"\n    Aperçu: {email['snippet'][:100]}..."
+                        
+                        # Informations sur l'exécution
+                        if task_result.execution_time > 0:
+                            response += f"\n⏱️ Exécuté en {task_result.execution_time:.2f}s"
+                    else:
+                        response = f"❌ {task_result.message}"
+                        
+                        # Ajouter des détails sur les erreurs si disponibles
+                        if task_result.steps_completed:
+                            failed_steps = [s for s in task_result.steps_completed if s.error]
+                            if failed_steps:
+                                response += f"\n\nÉtapes en erreur:"
+                                for step in failed_steps[:3]:  # Limite à 3 erreurs
+                                    response += f"\n• {step.description}: {step.error}"
+                    
+                except Exception as e:
+                    self.logger.error(f"Erreur exécuteur de tâches: {e}")
+                    response = f"❌ Erreur lors de l'exécution de la tâche: {e}"
             
-            # Commandes système
-            elif any(word in command_lower for word in ["ferme", "arrête", "éteint", "redémarre"]):
-                response = self._handle_system_command(command_lower)
-            
-            # Commandes d'information
-            elif any(word in command_lower for word in ["quelle heure", "quel jour", "date", "temps"]):
-                response = self._handle_info_command(command_lower)
-            
-            # Commandes générales
+            # Fallback vers les commandes basiques si l'IA n'est pas disponible
             else:
-                response = f"Je comprends votre demande '{command}'. Cette fonctionnalité sera bientôt disponible."
+                response = await self._handle_basic_commands(command)
             
-            # Envoyer la réponse à l'interface
-            if self.ui_window and response:
+            # Envoyer la réponse à l'interface utilisateur
+            if response and self.ui_window:
                 self.ui_window.add_response("text", response)
-                
-                # Synthèse vocale si disponible
-                if self.response_engine:
-                    try:
-                        self.response_engine.speak(response)
-                    except Exception as e:
-                        self.logger.error(f"Erreur synthèse vocale: {e}")
+            
+            # Ajouter la réponse à l'historique
+            self.conversation_context["history"].append({
+                "timestamp": datetime.now().isoformat(),
+                "type": "assistant_response", 
+                "content": response
+            })
+            
+            self.logger.info(f"✅ Commande traitée avec succès")
             
         except Exception as e:
-            self.logger.error(f"Erreur traitement commande: {e}")
+            error_msg = f"❌ Erreur lors du traitement de la commande: {e}"
+            self.logger.error(error_msg)
+            
             if self.ui_window:
-                self.ui_window.add_response("error", f"Erreur lors du traitement: {e}")
+                self.ui_window.add_response("text", error_msg)
+    
+    def _sync_process_command(self, command: str):
+        """Wrapper synchrone pour process_command"""
+        try:
+            # Exécute la méthode async dans une nouvelle boucle d'événements
+            import asyncio
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(self.process_command(command))
+            loop.close()
+        except Exception as e:
+            self.logger.error(f"Erreur wrapper sync: {e}")
+            if self.ui_window:
+                self.ui_window.add_response("text", f"❌ Erreur: {e}")
+    
+    async def _handle_basic_commands(self, command: str) -> str:
+        """Gère les commandes de base quand l'IA n'est pas disponible"""
+        command_lower = command.lower().strip()
+        
+        # Commandes d'ouverture d'applications
+        if any(word in command_lower for word in ["ouvre", "lance", "démarre", "ouvrir", "lancer"]):
+            return self._handle_app_launch_command(command_lower)
+        
+        # Commandes système
+        elif any(word in command_lower for word in ["ferme", "arrête", "éteint", "redémarre"]):
+            return self._handle_system_command(command_lower)
+        
+        # Commandes d'information
+        elif any(word in command_lower for word in ["quelle heure", "quel jour", "date", "temps"]):
+            return self._handle_info_command(command_lower)
+        
+        # Commandes générales
+        else:
+            return f"Je comprends votre demande '{command}'. Cette fonctionnalité sera bientôt disponible."
     
     def _handle_app_launch_command(self, command: str) -> str:
         """Gère les commandes d'ouverture d'applications"""
